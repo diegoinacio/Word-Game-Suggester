@@ -1,13 +1,23 @@
 import pickle
+import random
 import zipfile
+import argparse
 import itertools
+
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-s', '--samples', default=-1, type=int)
+parser.add_argument('-ml', '--minimum-length', default=3, type=int)
+
+args = parser.parse_args()
 
 
 ##############
 # Read files #
 ##############
 # Import wordlist wordlist.txt file from wordlist.zip
-# Downloaded from https://github.com/dwyl/english-words
+# Downloaded from http://www.mieliestronk.com/wordlist.html
 archive = zipfile.ZipFile('data/wordlist.zip', 'r')
 txtFile = archive.open('wordlist.txt')
 READ = txtFile.read()
@@ -21,11 +31,14 @@ archive.close()
 # Create WORDLIST
 WORDLIST = [word.decode() for word in READ.split()]
 # Filter words with length greater than or equal to 3
-WORDLIST = [word for word in WORDLIST if len(word) >= 3]
+WORDLIST = [word for word in WORDLIST if len(word) >= args.minimum_length]
 # Remove words with invalid chars
 WORDLIST = [word for word in WORDLIST if word.isalpha()]
 # Uppercase all letters
 WORDLIST = [word.upper() for word in WORDLIST]
+# Select samples
+if args.samples > 0:
+    WORDLIST = random.sample(WORDLIST, args.samples)
 
 
 ##################################
