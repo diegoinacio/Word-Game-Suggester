@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('-s', '--samples', default=-1, type=int)
 parser.add_argument('-ml', '--minimum-length', default=3, type=int)
+parser.add_argument('-mo', '--maximum-order', default=3, type=int)
 
 args = parser.parse_args()
 
@@ -48,20 +49,20 @@ if args.samples > 0:
 ALPHABET = ''.join([chr(i) for i in range(ord('A'), ord('Z') + 1)])
 Na = len(ALPHABET)
 
-# First order transition matrix definition
-MCTM = {a: {b: 1/Na for b in ALPHABET} for a in ALPHABET}
-for WORD in WORDLIST:
-    for a, b in zip(WORD[:-1], WORD[1:]):
-        MCTM[a][b] += 1
+# Letters occurrences p(x)
+MCTM = {'': {e: sum([w.count(e) for w in WORDLIST]) for e in ALPHABET}}
 
-# Second order transition matrix definition
-perms = sorted(set([''.join(e) for e in itertools.permutations(ALPHABET*2, 2)]))
-MCTM = {**MCTM, **{a: {b: 1/Na for b in ALPHABET} for a in perms}}
-for WORD in WORDLIST:
-    for i in range(len(WORD)-2):
-        MCTM[WORD[i:i+2]][WORD[i+2]] += 1
+# Transition matrix by order p(x | x_-1, x_-2, ..., x_-n)
+for order in range(1, args.maximum_order+1):
+    perms = sorted(set([''.join(e) for e in itertools.permutations(ALPHABET*order, order)]))
+    MCTM = {**MCTM, **{a: {b: 1/Na for b in ALPHABET} for a in perms}}
+    for WORD in WORDLIST:
+        if len(WORD) <= order:
+            continue
+        for i in range(len(WORD)-order):
+            MCTM[WORD[i:i+order]][WORD[i+order]] += 1
 
-# Normalize probabilities
+# Normalize probability
 for key in MCTM.keys():
     SUM = sum(MCTM[key].values())
     MCTM[key] = {key_: MCTM[key][key_]/SUM for key_ in MCTM[key]}
