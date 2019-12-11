@@ -19,7 +19,9 @@ python main.py -l EODTEM
 ```
 
 ## Commands/flags
+
 Flags which parses the commands into the program.
+
 | command            | description |
 | ------------------ | ----------- |
 | -l, --letters      | All letters to be used (**required**) |
