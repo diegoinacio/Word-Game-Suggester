@@ -54,7 +54,9 @@ MCTM = {'': {e: sum([w.count(e) for w in WORDLIST]) for e in ALPHABET}}
 
 # Transition matrix by order p(x | x_-1, x_-2, ..., x_-n)
 for order in range(1, args.maximum_order+1):
-    perms = sorted(set([''.join(e) for e in itertools.product(ALPHABET, repeat=order)]))
+    perms = sorted(
+        set([''.join(e) for e in itertools.product(ALPHABET, repeat=order)])
+    )
     MCTM = {**MCTM, **{a: {b: 1/Na for b in ALPHABET} for a in perms}}
     for WORD in WORDLIST:
         if len(WORD) <= order:
